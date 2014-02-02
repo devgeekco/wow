@@ -10,8 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * 
@@ -24,8 +22,6 @@ public class GroupDistAlgo {
 	private  HashMap<String, BigDecimal> groupUsers; 
 	private BigDecimal totalExpense = new BigDecimal(0);
 	private BigDecimal avgExpense = new BigDecimal(0);
-
-
 
 	public GroupDistAlgo() {
 		super();
@@ -52,48 +48,52 @@ public class GroupDistAlgo {
 			} else
 				negativeUsers.put(getIndiExp.getKey(), tempCalc);
 		}
-		
-			System.out.println("\n## Positive Entry Below:");	
-			printHashMap(positiveUsers);
-			System.out.println("\n## Negative Entry Below:");
-			printHashMap(negativeUsers);
+
+		System.out.println("\n## Positive Entry Below:");	
+		printHashMap(positiveUsers);
+		System.out.println("\n## Negative Entry Below:");
+		printHashMap(negativeUsers);
 
 		// STEP 2: Sort
-			
-			HashMap<String,BigDecimal> sortedMap = sortByValue(negativeUsers);
-			System.out.println("\n## Negative Sorted Entry Below:");	
-	        printHashMap(sortedMap);
-	        
-	        sortedMap = sortByValue(positiveUsers);
-	        System.out.println("\n## Positive Sorted Entry Below:");	
-	        printHashMap(sortedMap);
-	        
-	        
-			/*
+
+		negativeUsers = sortByValue(negativeUsers, 1); // 1: Decreasing order
+		System.out.println("\n## Negative Sorted Entry Below:");	
+		printHashMap(negativeUsers);
+
+		positiveUsers = sortByValue(positiveUsers,0); // 0: Increasing order
+		System.out.println("\n## Positive Sorted Entry Below:");	
+		printHashMap(positiveUsers);
+
+		/*
 		for (Entry<String, BigDecimal> entry  : entriesSortedByValues(negativeUsers)) {
 			System.out.println(entry.getKey()+":"+entry.getValue());
 		}*/
-		
-
 	}
+
 	
-	public static HashMap<String, BigDecimal> sortByValue(HashMap<String, BigDecimal> map) {
-        List list = new LinkedList(map.entrySet());
-        Collections.sort(list, new Comparator() {
+	@SuppressWarnings("unchecked")
+	public static HashMap<String, BigDecimal> sortByValue(HashMap<String, BigDecimal> map, final int order) {
+		List list = new LinkedList(map.entrySet());
+		Collections.sort(list, new Comparator() {
 
-            @Override
-            public int compare(Object o1, Object o2) {
-                return ((Comparable) ((Map.Entry) (o2)).getValue()).compareTo(((Map.Entry) (o1)).getValue());
-            }
-        });
+			@Override
+			public int compare(Object o1, Object o2) {
+				if (order == 0)
+					return ((Comparable) ((Map.Entry) (o2)).getValue()).compareTo(((Map.Entry) (o1)).getValue());
+				else
+					return ((Comparable) ((Map.Entry) (o1)).getValue()).compareTo(((Map.Entry) (o2)).getValue());
+			}
+		});
 
-        HashMap result = new LinkedHashMap();
-        for (Iterator it = list.iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry) it.next();
-            result.put(entry.getKey(), entry.getValue());
-        }
-        return result;
-    }
+		HashMap result = new LinkedHashMap();
+		for (Iterator it = list.iterator(); it.hasNext();) {
+			Map.Entry entry = (Map.Entry) it.next();
+			result.put(entry.getKey(), entry.getValue());
+		}
+		return result;
+	}
+
+	/*
 
 	static <K,V extends Comparable<? super V>>
 	SortedSet<Map.Entry<K, V>> entriesSortedByValues(HashMap<K,V> map) {
@@ -106,7 +106,7 @@ public class GroupDistAlgo {
 		);
 		sortedEntries.addAll(map.entrySet());
 		return sortedEntries;
-	}
+	}*/
 
 	private void calcTotalExpense() {
 		for (BigDecimal indExp : groupUsers.values()) {
@@ -125,7 +125,7 @@ public class GroupDistAlgo {
 	private void printHashMap(HashMap<String, BigDecimal> hm) {
 		//System.out.println("\n=== DEBUG ==== ");
 		for(Entry<String, BigDecimal> entry : hm.entrySet()) {		
-			System.out.println("## Key:: "+entry.getKey()+" ## Value:: "+entry.getValue().toString());
+			System.out.println("## Key:: "+entry.getKey()+"        ## Value:: "+entry.getValue().toString());
 		}
 	}
 
@@ -133,8 +133,8 @@ public class GroupDistAlgo {
 	 * Populate dummy data
 	 */
 	private void populateData() {
-		groupUsers.put("Jamesbond", new BigDecimal(80.0));
-		groupUsers.put("Supercommando Dhruv", new BigDecimal(100.0));
+		groupUsers.put("Jamesbond", new BigDecimal(80));
+		groupUsers.put("Supercommando Dhruv", new BigDecimal(100));
 		groupUsers.put("Nagraj", new BigDecimal(0));
 		groupUsers.put("Superwoman", new BigDecimal(20));
 		groupUsers.put("Superman", new BigDecimal(20));
