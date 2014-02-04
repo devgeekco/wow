@@ -1,6 +1,7 @@
 package devgeek.expense.algo;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -49,28 +50,81 @@ public class GroupDistAlgo {
 				negativeUsers.put(getIndiExp.getKey(), tempCalc);
 		}
 
-		System.out.println("\n## Positive Entry Below:");	
-		printHashMap(positiveUsers);
-		System.out.println("\n## Negative Entry Below:");
-		printHashMap(negativeUsers);
+	//	System.out.println("\n## Positive Entry Below:");	
+		//printHashMap(positiveUsers);
+		//System.out.println("\n## Negative Entry Below:");
+		//printHashMap(negativeUsers);
 
 		// STEP 2: Sort
 
 		negativeUsers = sortByValue(negativeUsers, 1); // 1: Decreasing order
-		System.out.println("\n## Negative Sorted Entry Below:");	
-		printHashMap(negativeUsers);
+		//System.out.println("\n## Negative Sorted Entry Below:");	
+		//printHashMap(negativeUsers);
 
 		positiveUsers = sortByValue(positiveUsers,0); // 0: Increasing order
-		System.out.println("\n## Positive Sorted Entry Below:");	
-		printHashMap(positiveUsers);
+		//System.out.println("\n## Positive Sorted Entry Below:");	
+		//printHashMap(positiveUsers);
 
+		System.out.println("\n# Generating Report on who owes who?\n ");
+		generateReport(positiveUsers, negativeUsers);
 		/*
 		for (Entry<String, BigDecimal> entry  : entriesSortedByValues(negativeUsers)) {
 			System.out.println(entry.getKey()+":"+entry.getValue());
 		}*/
 	}
 
-	
+	/**
+	 * Core Algorithm for finding who owes money to other travel partners for 
+	 * joint expenditure in the tour.
+	 * @param positiveUsers
+	 * @param negativeUsers
+	 * @return
+	 */
+	private boolean generateReport(HashMap<String, BigDecimal> positiveUsers,
+			HashMap<String, BigDecimal> negativeUsers) {
+
+		if(positiveUsers.size() == 0 || negativeUsers.size() == 0)
+			return true;	
+
+		Iterator<Map.Entry<String, BigDecimal>> posEntryIt = null;
+		Entry<String, BigDecimal> posEntry = null;
+
+		if(positiveUsers.entrySet().iterator().hasNext()) {
+			posEntryIt= positiveUsers.entrySet().iterator();
+			posEntry = posEntryIt.next();
+		}
+
+		Iterator<Map.Entry<String, BigDecimal>> negEntryIt = null;
+		Entry<String, BigDecimal> negEntry = null;
+
+		if(negativeUsers.entrySet().iterator().hasNext()) {
+			negEntryIt= negativeUsers.entrySet().iterator();
+			negEntry = negEntryIt.next();
+		}
+
+		//System.out.println("# Number of Entries in PosEntry: "+positiveUsers.size()+ " NegEntry: "+negativeUsers.size());
+
+		BigDecimal tempResult = posEntry.getValue().add(negEntry.getValue());
+
+		//System.out.println("# Temp RESULT::: "+tempResult);
+
+		if(tempResult.compareTo(BigDecimal.ZERO) == 0) {
+			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+posEntry.getValue());
+			posEntryIt.remove(); negEntryIt.remove();
+		} else if (tempResult.compareTo(BigDecimal.ZERO) > 0) {
+			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+negEntry.getValue().abs());
+			positiveUsers.put(posEntry.getKey(), tempResult); negEntryIt.remove();
+		} else if (tempResult.compareTo(BigDecimal.ZERO) < 0) {
+			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+posEntry.getValue());
+			posEntryIt.remove(); negativeUsers.put(negEntry.getKey(), tempResult);
+		}
+
+		generateReport(positiveUsers, negativeUsers);
+
+		return true;
+
+	}
+
 	@SuppressWarnings("unchecked")
 	public static HashMap<String, BigDecimal> sortByValue(HashMap<String, BigDecimal> map, final int order) {
 		List list = new LinkedList(map.entrySet());
@@ -114,12 +168,11 @@ public class GroupDistAlgo {
 			totalExpense = totalExpense.add(indExp);
 		}
 
-		System.out.println("## Total Expense: "+totalExpense.toString()+
-				" Number of Group Members: "+groupUsers.size());
+//		System.out.println("## Total Expense: "+totalExpense.toString()+" Number of Group Members: "+groupUsers.size());
 
-		avgExpense = totalExpense.divide(new BigDecimal(groupUsers.size()));
+		avgExpense = totalExpense.divide(new BigDecimal(groupUsers.size()), 2, RoundingMode.HALF_UP);
 
-		System.out.println("## Avg. Expense: "+avgExpense);
+		//System.out.println("## Avg. Expense: "+avgExpense);
 	}
 
 	private void printHashMap(HashMap<String, BigDecimal> hm) {
@@ -133,11 +186,15 @@ public class GroupDistAlgo {
 	 * Populate dummy data
 	 */
 	private void populateData() {
-		groupUsers.put("Jamesbond", new BigDecimal(80));
+		groupUsers.put("Jamesbond", new BigDecimal(2480));
 		groupUsers.put("Supercommando Dhruv", new BigDecimal(100));
-		groupUsers.put("Nagraj", new BigDecimal(0));
-		groupUsers.put("Superwoman", new BigDecimal(20));
-		groupUsers.put("Superman", new BigDecimal(20));
+		groupUsers.put("Nagraj", new BigDecimal(45));
+		groupUsers.put("Superwoman", new BigDecimal(20.2));
+		groupUsers.put("Superman", new BigDecimal(222.23));
+		groupUsers.put("Mogambo", new BigDecimal(1120));
+		groupUsers.put("MrIndia", new BigDecimal(127.5));
+		groupUsers.put("Obama", new BigDecimal(910));
+		groupUsers.put("Modi", new BigDecimal(3251));
 
 		calcTotalExpense();	
 	}
