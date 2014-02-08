@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * 
+ * Designed and implemented Algorithm for calculating 'who owes who' in Group expenses.
  * @author Ankit Singh
  * Copyright DevGeeks Lab 2014-15
  *
@@ -34,7 +34,6 @@ public class GroupDistAlgo {
 	 * Distribution algorithm.
 	 */
 	public void decisionMaker() {
-		//HashMap<String, BigDecimal> diffAvg = new HashMap<String, BigDecimal>();
 		HashMap<String, BigDecimal> positiveUsers = new HashMap<String, BigDecimal>();; // who paid more than average or nothing to pay
 		HashMap<String, BigDecimal> negativeUsers = new HashMap<String, BigDecimal>();; // who paid less than average
 
@@ -57,11 +56,11 @@ public class GroupDistAlgo {
 
 		// STEP 2: Sort
 
-		negativeUsers = sortByValue(negativeUsers, 1); // 1: Decreasing order
+		negativeUsers = sortByValue(negativeUsers, 1); // 1: Increasing order
 		//System.out.println("\n## Negative Sorted Entry Below:");	
 		//printHashMap(negativeUsers);
 
-		positiveUsers = sortByValue(positiveUsers,0); // 0: Increasing order
+		positiveUsers = sortByValue(positiveUsers,0); // 0: Decreasing order
 		//System.out.println("\n## Positive Sorted Entry Below:");	
 		//printHashMap(positiveUsers);
 
@@ -109,13 +108,13 @@ public class GroupDistAlgo {
 		//System.out.println("# Temp RESULT::: "+tempResult);
 
 		if(tempResult.compareTo(BigDecimal.ZERO) == 0) {
-			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+posEntry.getValue());
+			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+posEntry.getValue().setScale(2, RoundingMode.HALF_UP).abs());
 			posEntryIt.remove(); negEntryIt.remove();
 		} else if (tempResult.compareTo(BigDecimal.ZERO) > 0) {
-			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+negEntry.getValue().abs());
+			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+negEntry.getValue().setScale(2, RoundingMode.HALF_UP).abs());
 			positiveUsers.put(posEntry.getKey(), tempResult); negEntryIt.remove();
 		} else if (tempResult.compareTo(BigDecimal.ZERO) < 0) {
-			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+posEntry.getValue());
+			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+posEntry.getValue().setScale(2, RoundingMode.HALF_UP).abs());
 			posEntryIt.remove(); negativeUsers.put(negEntry.getKey(), tempResult);
 		}
 
@@ -125,6 +124,12 @@ public class GroupDistAlgo {
 
 	}
 
+	/**
+	 * Sort HashMap into increasing (order=1) or decreasing (order=0) order
+	 * @param map
+	 * @param order
+	 * @return HashMap<String, BigDecimal>
+	 */
 	@SuppressWarnings("unchecked")
 	public static HashMap<String, BigDecimal> sortByValue(HashMap<String, BigDecimal> map, final int order) {
 		List list = new LinkedList(map.entrySet());
@@ -147,21 +152,6 @@ public class GroupDistAlgo {
 		return result;
 	}
 
-	/*
-
-	static <K,V extends Comparable<? super V>>
-	SortedSet<Map.Entry<K, V>> entriesSortedByValues(HashMap<K,V> map) {
-		SortedSet<Map.Entry<K,V>> sortedEntries = new TreeSet<Map.Entry<K,V>>(
-				new Comparator<Map.Entry<K,V>>() {
-					@Override public int compare(Map.Entry<K,V> e1, Map.Entry<K,V> e2) {
-						return e1.getValue().compareTo(e2.getValue());
-					}
-				}
-		);
-		sortedEntries.addAll(map.entrySet());
-		return sortedEntries;
-	}*/
-
 	private void calcTotalExpense() {
 		for (BigDecimal indExp : groupUsers.values()) {
 			//	System.out.println("Values: "+indExp.toString());
@@ -172,9 +162,13 @@ public class GroupDistAlgo {
 
 		avgExpense = totalExpense.divide(new BigDecimal(groupUsers.size()), 2, RoundingMode.HALF_UP);
 
-		//System.out.println("## Avg. Expense: "+avgExpense);
+		System.out.println("## Avg. Expense: "+avgExpense);
 	}
 
+	/**
+	 * Prints all hashmap key-values for debuggin purpose
+	 * @param hm
+	 */
 	private void printHashMap(HashMap<String, BigDecimal> hm) {
 		//System.out.println("\n=== DEBUG ==== ");
 		for(Entry<String, BigDecimal> entry : hm.entrySet()) {		
@@ -198,8 +192,6 @@ public class GroupDistAlgo {
 
 		calcTotalExpense();	
 	}
-
-
 
 	/**
 	 * @param args
