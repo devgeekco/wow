@@ -12,8 +12,7 @@ _________
 4. Sort negativeUsers<> in increasing order and positiveUsers<> in decreasing order.
 5. Subtract positiveUser.value against negativeUsers.value in a Recursive function
 	
-generateReport(positiveUser, negativeuser) {
-	
+   generateReport(positiveUser, negativeuser) {	
 	if(positiveUser.size == 0 or negativeUser.size == 0)
 		return true;
 
