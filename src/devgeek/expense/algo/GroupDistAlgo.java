@@ -116,7 +116,8 @@ public class GroupDistAlgo {
 		} else if (tempResult.compareTo(BigDecimal.ZERO) < 0) {
 			System.out.println(negEntry.getKey()+" OWES "+posEntry.getKey()+" --> "+posEntry.getValue().setScale(2, RoundingMode.HALF_UP).abs());
 			posEntryIt.remove(); negativeUsers.put(negEntry.getKey(), tempResult);
-		}
+		} else
+			System.out.println("## ERROR: Something went wrong");
 
 		generateReport(positiveUsers, negativeUsers);
 
